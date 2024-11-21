@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Reservas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .report-label {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            color: #17a2b8;
+            font-weight: bold;
+        }
+
+        /* Estilos do modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Estilos do gráfico */
+        #chart_div {
+            width: 900px;
+            height: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<h3>Relatório de Reservas</h3>
+
+<!-- Labels para gerar relatório -->
+<label class="report-label" id="generateReportBtn">Gerar Relatório de Reservas por Período</label>
+<label class="report-label" id="generateGraphBtn">Gerar Gráfico de Reservas Aceitas X Aguardando Aprovação por Período</label>
+
+<!-- Modal para Relatório -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeReportModal">&times;</span>
+        <h3>Selecione as datas para o Relatório</h3>
+        <label for="startDateReport">Data Início:</label>
+        <input type="date" id="startDateReport"><br>
+        <label for="endDateReport">Data Fim:</label>
+        <input type="date" id="endDateReport"><br><br>
+        <button id="generatePdf">Gerar Relatório em PDF</button>
+    </div>
+</div>
+
+<!-- Modal para Gráfico -->
+<div id="chartModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeChartModal">&times;</span>
+        <h3>Selecione as datas para o Gráfico</h3>
+        <label for="startDateChart">Data Início:</label>
+        <input type="date" id="startDateChart"><br>
+        <label for="endDateChart">Data Fim:</label>
+        <input type="date" id="endDateChart"><br><br>
+        <button id="generateGraph">Gerar Gráfico</button>
+    </div>
+</div>
+
+<!-- Div para o gráfico -->
+<div id="chart_div"></div>
+
+<script>
+    // Modal de Relatório
+    const reportModal = document.getElementById("reportModal");
+    const closeReportModal = document.getElementById("closeReportModal");
+
+    closeReportModal.onclick = function() {
+        reportModal.style.display = "none";
+    }
+
+    document.getElementById('generateReportBtn').onclick = function() {
+        reportModal.style.display = "block";
+    }
+
+    // Modal para Gráfico
+    const chartModal = document.getElementById("chartModal");
+    const closeChartModal = document.getElementById("closeChartModal");
+
+    closeChartModal.onclick = function() {
+        chartModal.style.display = "none";
+    }
+
+    document.getElementById('generateGraphBtn').onclick = function() {
+        chartModal.style.display = "block";
+    }
+
+    // Função para gerar gráfico de linhas
+    function generateChart(startDate, endDate, reservas) {
+        const filteredReservas = reservas.filter(reserva => reserva.data >= startDate && reserva.data <= endDate);
+
+        // Agrupando as reservas por data
+        const reservasPorData = {};
+        filteredReservas.forEach(reserva => {
+            const data = reserva.data;
+            if (!reservasPorData[data]) {
+                reservasPorData[data] = { aceitas: 0, aguardando: 0 };
+            }
+            if (reserva.status) {
+                reservasPorData[data].aceitas++;
+            } else {
+                reservasPorData[data].aguardando++;
+            }
+        });
+
+        // Organizando os dados para o gráfico
+        const data = [['Data', 'Reservas Aceitas', 'Aguardando Aprovação']];
+        Object.keys(reservasPorData).forEach(dataKey => {
+            const row = [
+                dataKey, 
+                reservasPorData[dataKey].aceitas, 
+                reservasPorData[dataKey].aguardando
+            ];
+            data.push(row);
+        });
+
+        const dataTable = google.visualization.arrayToDataTable(data);
+
+        const options = {
+            title: 'Reservas Aceitas X Aguardando Aprovação ao Longo do Tempo',
+            curveType: 'function',
+            legend: { position: 'top' },
+            hAxis: {
+                title: 'Data'
+            },
+            vAxis: {
+                title: 'Quantidade de Reservas',
+                minValue: 0,  // Impede que o eixo Y seja negativo
+                format: 'decimal', // Formato de números inteiros
+                viewWindow: {
+                    min: 0  // Garante que o eixo Y não vai abaixo de 0
+                }
+            },
+            pointSize: 5
+        };
+
+        const chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(dataTable, options);
+    }
+
+    // Carregar Google Charts
+    google.charts.load('current', {
+        packages: ['corechart', 'line']
+    });
+
+    document.getElementById('generateGraph').onclick = function() {
+        const startDate = document.getElementById('startDateChart').value;
+        const endDate = document.getElementById('endDateChart').value;
+
+        if (!startDate || !endDate) {
+            alert('Por favor, selecione as datas de início e fim.');
+            return;
+        }
+
+        fetch('/reservas')
+            .then(response => response.json())
+            .then(reservas => {
+                google.charts.setOnLoadCallback(() => generateChart(startDate, endDate, reservas));
+                chartModal.style.display = "none";
+            });
+    }
+
+    // Função para gerar o relatório em PDF
+    document.getElementById('generatePdf').onclick = function() {
+        const startDate = document.getElementById('startDateReport').value;
+        const endDate = document.getElementById('endDateReport').value;
+
+        if (!startDate || !endDate) {
+            alert('Por favor, selecione as datas de início e fim.');
+            return;
+        }
+
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        pdf.text(`Relatório de Reservas`, 10, 10);
+        pdf.text(`Período: ${formatDate(startDate)} a ${formatDate(endDate)}`, 10, 20);
+
+        fetch('/reservas')
+            .then(response => response.json())
+            .then(reservas => {
+                const filteredReservas = reservas.filter(reserva => {
+                    return reserva.data >= startDate && reserva.data <= endDate;
+                });
+
+                pdf.autoTable({
+                    head: [['Nome', 'Ambiente', 'Data', 'Horário Início', 'Horário Fim', 'Situação']],
+                    body: filteredReservas.map(reserva => [
+                        reserva.nome,
+                        reserva.ambiente,
+                        formatDate(reserva.data),
+                        reserva.horario_inicio,
+                        reserva.horario_fim,
+                        reserva.status ? 'Aceita' : 'Aguardando aprovação'
+                    ]),
+                    startY: 30,
+                    theme: 'grid',
+                });
+
+                pdf.save('relatorio_reservas.pdf');
+                reportModal.style.display = "none";
+            });
+    };
+
+    // Fecha os modais ao clicar fora deles
+    window.onclick = function(event) {
+        if (event.target === reportModal) {
+            reportModal.style.display = "none";
+        }
+        if (event.target === chartModal) {
+            chartModal.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>

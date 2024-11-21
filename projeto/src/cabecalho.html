@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Recursos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Customização da Navbar */
+        .navbar {
+            background-color: #1999A8 !important; /* Cor de fundo personalizada */
+        }
+ 
+        .navbar-brand {
+            color: white !important; /* Cor do texto para a logo */
+        }
+ 
+        .navbar-nav .nav-link {
+            color: white !important; /* Cor dos itens do menu */
+        }
+ 
+        .navbar-nav .nav-link:hover {
+            color: #fff !important; /* Efeito de hover nos links */
+        }
+ 
+        .navbar-nav .dropdown-menu {
+            background-color: #1999A8; /* Cor de fundo dos dropdowns */
+        }
+ 
+        .navbar-nav .dropdown-item {
+            color: white !important; /* Cor dos itens do dropdown */
+        }
+ 
+        .navbar-nav .dropdown-item:hover {
+            background-color: #17a2b8 !important; /* Efeito de hover nos dropdowns */
+        }
+ 
+        .navbar-collapse {
+            justify-content: space-between; /* Alinhar itens de navegação à esquerda e direita */
+        }
+ 
+        .navbar-nav {
+            margin-top: 10px; /* Espaço entre o topo e os itens do menu */
+        }
+ 
+        .logo {
+            width: 55px; /* Ajuste o valor conforme necessário */
+            height: auto; /* Mantém a proporção */
+        }
+ 
+        /* Estilo para a área de boas-vindas e botão sair */
+        .user-section {
+            display: flex;
+            align-items: center;
+            color: white; /* Define a cor branca para o texto */
+        }
+ 
+        .user-section .welcome-message {
+            margin-right: 10px; /* Espaçamento entre o "Bem-vindo" e o botão "Sair" */
+        }
+ 
+    </style>
+</head>
+<body>
+   
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/home-adm">
+                <img src="https://i.ibb.co/bFgqTBN/logo.png" alt="Logo" class="logo d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="comprasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ambientes
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="comprasDropdown">
+                            <li><a class="dropdown-item" href="/ambiente">Gerenciar Ambientes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="comprasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Solicitações de Reservas
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="comprasDropdown">
+                            <li><a class="dropdown-item" href="/confirmacao">Gerenciar Reservas</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Usuários
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="usuario">
+                            <li><a class="dropdown-item" href="/usuario">Gerenciar Usuários</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios" id="relatorioDropdown">
+                            Relatório
+                        </a>
+                    </li>
+                </ul>
+                <!-- Texto de boas-vindas e botão de sair -->
+                <div class="user-section">
+                    <span class="welcome-message">Bem Vindo(a), {usuario}</span>
+                    <a class="nav-link" href="/sair">Sair</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+   
+</body>
+</html>
+ 
