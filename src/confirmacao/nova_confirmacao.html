@@ -1,0 +1,26 @@
+<h3 class="text-center mb-4">Inserir Nova Solicitação</h3>
+<div class="container">
+    <form action="/confirmacao/novo" method="post" class="p-4 border rounded shadow">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome do Solicitante</label>
+            <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do Solicitante">
+        </div>
+        <div class="mb-3">
+            <label for="ambiente" class="form-label">Ambiente</label>
+            <input type="text" class="form-control" id="ambiente" name="ambiente" placeholder="Nome do Ambiente">
+        </div>
+        <div class="mb-3">
+            <label for="data" class="form-label">Data</label>
+            <input type="date" class="form-control" id="data" name="data" placeholder="Data">
+        </div>
+        <div class="mb-3">
+            <label for="horario_inicio" class="form-label">Horário Inicio</label>
+            <input type="time" class="form-control" id="horario_inicio" name="horario_inicio" placeholder="Horário inicio">
+        </div>
+        <div class="mb-3">
+            <label for="horario_fim" class="form-label">Horário Fim</label>
+            <input type="time" class="form-control" id="horario_fim" name="horario_fim" placeholder="Horário fim">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Inserir</button>
+    </form>
+</div>

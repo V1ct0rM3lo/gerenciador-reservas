@@ -1,0 +1,43 @@
+<h3 class="text-center mb-4">Inserir Novo Usuário</h3>
+<div class="container">
+    <form action="/usuario/novo" method="post" class="p-4 border rounded shadow">
+       
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome do Usuário</label>
+            <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do Usuário">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="text" class="form-control" id="email" name="email" placeholder="E-mail">
+        </div>
+        <div class="mb-3">
+            <label for="DataNascimento" class="form-label">Data Nascimento</label>
+            <input type="date" class="form-control" id="DataNascimento" name="DataNascimento" placeholder="Data Nascimento">
+        </div>
+        <div class="mb-3">
+            <label for="telefone" class="form-label">Telefone</label>
+            <input type="text" class="form-control" id="telefone" name="telefone" placeholder="Telefone" oninput="mascaraTelefone(this)">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Inserir</button>
+    </form>
+</div>
+
+<script>
+    function mascaraTelefone(input) {
+        let telefone = input.value;
+
+        // Remove todos os caracteres que não são números
+        telefone = telefone.replace(/\D/g, '');
+
+        // Aplica a máscara (XXX) XXXXX-XXXX
+        if (telefone.length <= 10) {
+            // Máscara para 10 dígitos
+            telefone = telefone.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+        } else {
+            // Máscara para 11 dígitos
+            telefone = telefone.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+        }
+
+        input.value = telefone; // Atualiza o valor do campo com a máscara
+    }
+</script>

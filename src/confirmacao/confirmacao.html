@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<div class="container mt-5">
+  <h3>Solicitações de Reservas</h3>
+
+  <p>{mensagem}</p>
+
+  {tabela}
+  
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#tabela-analise').DataTable({
+        language: {
+          url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+        }
+      });
+    });
+  </script>
+
+

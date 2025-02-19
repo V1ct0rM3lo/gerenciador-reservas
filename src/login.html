@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Sistema de Reserva de Ambientes</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+        background-color: #1999A8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+    }
+
+    .card {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #1999A8;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .form-label {
+        color: #000;
+    }
+
+    .btn-primary {
+        background-color: #1999A8;
+        border: none;
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+
+    .btn-primary:hover {
+        background-color: #188892;
+    }
+
+    a {
+        color: #1999A8;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #188892;
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Acesso Sistema</div>
+          <div class="card-body">
+              <form action="/login" method="post">
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu email">
+              </div>
+              <div class="mb-3">
+                <label for="senha" class="form-label">Data de Nascimento</label>
+                <input type="date" class="form-control" id="senha" name="senha" placeholder="Digite sua senha">
+              </div>
+              <button class="btn btn-primary" type="submmit">Acessar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap Bundle com Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+ 
+</body>
+</html>

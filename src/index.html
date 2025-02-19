@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico de Reservas por Mês</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        #chart-container {
+            max-width: 900px; /* Define uma largura máxima para o gráfico */
+            margin: 0 auto; /* Centraliza o gráfico */
+        }
+        h3 {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Espaço abaixo do título */
+            margin-top: 20px;
+            color: black; /* Cor do texto */
+            font-family: Arial, sans-serif; /* Fonte */
+            font-size: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+ 
+<h3>Gráfico de Reservas por Mês</h3>
+<div id="chart-container">
+    <canvas id="lineChart"></canvas>
+</div>
+ 
+
+ 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        const lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Número de Reservas',
+                    data: [],
+                    backgroundColor: 'rgba(23, 162, 184, 0.2)', // cor de fundo alterada
+                    borderColor: '#17a2b8', // cor da borda alterada
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+ 
+        fetch('/reserva-usu')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(reservas => {
+                const reservasPorMes = Array(12).fill(0);
+ 
+                reservas.forEach(reserva => {
+                    const dataParts = reserva.data.split('-');
+                    const data = new Date(dataParts[0], dataParts[1] - 1, dataParts[2]);
+ 
+                    if (isNaN(data)) {
+                        return;
+                    }
+ 
+                    const mes = data.getMonth();
+                    reservasPorMes[mes]++;
+                });
+ 
+                const meses = [
+                    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                ];
+ 
+                lineChart.data.labels = meses;
+                lineChart.data.datasets[0].data = reservasPorMes;
+                lineChart.update();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar reservas:', error);
+            });
+    });
+</script>
+ 
+</body>
+</html>

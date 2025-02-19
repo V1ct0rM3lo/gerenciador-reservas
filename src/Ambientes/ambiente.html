@@ -1,0 +1,326 @@
+<div class="container mt-5">
+  <h3>Gerenciamento de Ambiente</h3>
+
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ambiente">Criar Ambiente</button>
+
+  {tabela}
+
+  <!-- Modal -->
+  <div class="modal modal-lg fade" id="ambiente" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Gerenciar Ambientes</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col">
+              <label for="nome" class="form-label">Informe o nome do ambiente:</label>
+              <input type="text" class="form-control" name="nome" id="nome">
+            </div>
+            <div class="col-2 d-flex align-items-end">
+              <button type="button" class="btn btn-success" id="btnNovoambiente">
+                Registrar
+              </button>
+            </div>
+          </div>
+          <div class="row border-top border-bottom mt-3 mb-3 pt-3 pb-3 d-none" id="item-ambiente">
+            <input type="hidden" id="idambiente" />
+            <div class="row">
+              <div class="col">
+                <label for="qtd" class="form-label">Equipamento:</label>
+                <input type="text" class="form-control" id="qtd">
+              </div>
+              <div class="col-1 d-flex align-items-end">
+                <button type="button" class="btn btn-warning" id="btnAddEquipamento">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table class="table table-hover table-striped">
+                <tbody id="tabela-corpo">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastNovoambiente" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Resposta</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Ambiente Registrado com sucesso!
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Alteração -->
+  <div class="modal modal-lg fade" id="alterarAmbiente" tabindex="-1" aria-labelledby="alterarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="alterarModalLabel">Alterar Ambiente</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col">
+              <label for="nomeAlterar" class="form-label">Nome do ambiente:</label>
+              <input type="text" class="form-control" name="nomeAlterar" id="nomeAlterar">
+            </div>
+            <div class="col-2 d-flex align-items-end">
+              <button type="button" class="btn btn-success" id="btnAlterarNomeAmbiente">Alterar</button>
+            </div>
+          </div>
+          <div class="row border-top border-bottom mt-3 mb-3 pt-3 pb-3">
+            <input type="hidden" id="idambienteAlterar" />
+            <div class="row">
+              <div class="col">
+                <label for="qtdAlterar" class="form-label">Novo Equipamento:</label>
+                <input type="text" class="form-control" id="qtdAlterar">
+              </div>
+              <div class="col-1 d-flex align-items-end">
+                <button type="button" class="btn btn-warning" id="btnAddEquipamentoAlterar">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table class="table table-hover table-striped">
+                <tbody id="tabela-corpo-alterar">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const toastTrigger = document.getElementById('btnNovoambiente');
+    const toastLiveExample = document.getElementById('toastNovoambiente');
+
+    if (toastTrigger) {
+      toastTrigger.addEventListener('click', () => {
+        let nome = document.getElementById("nome").value;
+        let url = `/ambiente/novo?nome=${encodeURIComponent(nome)}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            const toast = new bootstrap.Toast(toastLiveExample);
+            let elemento = document.getElementById("item-ambiente");
+            elemento.classList.remove("d-none");
+            toast.show();
+            document.getElementById("idambiente").value = data.id;
+
+            const tabela = document.getElementById('tabela-corpo-ambientes');
+            const linha = document.createElement('tr');
+            linha.setAttribute('data-id', data.id);
+            linha.innerHTML = `
+              <td class="nome-ambiente">${nome}</td>
+              <td> <a class="btn btn-outline-warning btn-alterar" data-id="${data.id}" href="#">Alterar</a></td>
+            `;
+            tabela.appendChild(linha);
+          });
+      });
+    }
+
+    const listaAmbiente = document.getElementById("ambiente");
+    listaAmbiente.addEventListener('change', function () {
+      const id = listaAmbiente.value;
+      fetch("/ambiente/ambiente/" + id)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('valor').value = data.valor;
+        })
+        .catch(err => console.error(err));
+    });
+
+    const btnAddambiente = document.getElementById("btnAddEquipamento");
+    btnAddambiente.addEventListener("click", function () {
+      const AmbienteId = document.getElementById("idambiente").value;
+      const NomeEquipamento = document.getElementById("qtd").value;
+      const url = `/ambiente/addEquipamento/${AmbienteId}/${NomeEquipamento}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.sucesso) {
+            console.log("Equipamento inserido com sucesso!");
+            const tabela = document.getElementById('tabela-corpo');
+            const linha = document.createElement('tr');
+            linha.setAttribute('data-equipamento-id', data.id);
+            linha.innerHTML = `
+              <td>${NomeEquipamento}</td>
+              <td><button class="btn btn-danger btnExcluir">-</button></td>
+            `;
+            tabela.appendChild(linha);
+            document.getElementById("qtd").value = "";
+          } else {
+            console.log("Erro ao inserir o Equipamento!");
+          }
+        });
+    });
+
+    document.getElementById('tabela-corpo').addEventListener('click', (e) => {
+      if (e.target.classList.contains('btnExcluir')) {
+        const linha = e.target.closest('tr');
+        const EquipamentoId = linha.getAttribute('data-equipamento-id');
+        const AmbienteId = document.getElementById("idambiente").value;
+        const url = `/ambiente/excluirEquipamento/${AmbienteId}/${EquipamentoId}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.sucesso) {
+              console.log("Equipamento excluído");
+              linha.remove();
+            } else {
+              console.error("Não foi possível excluir o Equipamento");
+            }
+          })
+          .catch(err => console.error("Erro: " + err));
+      }
+    });
+
+    // Exemplo de botão "Alterar" na tabela
+    document.querySelector('.tabela-corpo-ambientes').addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-alterar')) {
+        const ambienteId = e.target.getAttribute('data-id');
+        fetch(`/ambiente/ambiente-alterar/${ambienteId}`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("nomeAlterar").value = data.nome;
+            document.getElementById("idambienteAlterar").value = ambienteId;
+
+            const tabelaCorpoAlterar = document.getElementById('tabela-corpo-alterar');
+            tabelaCorpoAlterar.innerHTML = "";
+            data.equipamentos.forEach(equipamento => {
+              const linha = document.createElement('tr');
+              linha.setAttribute('data-equipamento-id', equipamento.key);
+              linha.innerHTML = `
+                <td>${equipamento.descricao}</td>
+                <td><button class="btn btn-danger btnExcluirAlterar">-</button></td>
+              `;
+              tabelaCorpoAlterar.appendChild(linha);
+            });
+
+            const alterarModal = new bootstrap.Modal(document.getElementById('alterarAmbiente'));
+            alterarModal.show();
+          });
+      }
+    });
+
+    // Adicionar novo equipamento na modal de alteração
+    const btnAddEquipamentoAlterar = document.getElementById("btnAddEquipamentoAlterar");
+    btnAddEquipamentoAlterar.addEventListener("click", function () {
+      const AmbienteId = document.getElementById("idambienteAlterar").value;
+      const NomeEquipamento = document.getElementById("qtdAlterar").value;
+      const url = `/ambiente/addEquipamento/${AmbienteId}/${NomeEquipamento}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.sucesso) {
+            console.log("Equipamento inserido com sucesso!");
+            const tabela = document.getElementById('tabela-corpo-alterar');
+            const linha = document.createElement('tr');
+            linha.setAttribute('data-equipamento-id', data.id);
+            linha.innerHTML = `
+              <td>${NomeEquipamento}</td>
+              <td><button class="btn btn-danger btnExcluirAlterar">-</button></td>
+            `;
+            tabela.appendChild(linha);
+          } else {
+            console.log("Erro ao inserir o Equipamento!");
+          }
+        });
+    });
+
+    document.getElementById('btnAlterarNomeAmbiente').addEventListener('click', () => {
+      const AmbienteId = document.getElementById("idambienteAlterar").value;
+      const novoNome = document.getElementById("nomeAlterar").value;
+
+      fetch(`/ambiente/ambiente-alterar-nome/${AmbienteId}/${novoNome}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.sucesso) {
+          alert("Ambiente alterado com sucesso!");
+          // Atualizar a linha da tabela
+          const tabelaCorpo = document.getElementById("tabela-corpo-ambientes");
+          const linhas = tabelaCorpo.getElementsByTagName('tr');
+
+          // Percorrer as linhas e encontrar a linha correspondente ao ambiente alterado
+          for (let linha of linhas) {
+            const ambienteId = linha.getAttribute('data-id');
+            if (ambienteId === AmbienteId) {
+              // Alterar o nome na célula correspondente
+              linha.querySelector('.nome-ambiente').textContent = novoNome;
+              break; // Encontramos a linha, então podemos sair do loop
+            }
+          }
+        } else {
+          alert("Erro ao alterar ambiente.");
+        }
+      });
+    });
+
+    document.getElementById('tabela-corpo-alterar').addEventListener('click', (e) => {
+  if (e.target.classList.contains('btnExcluirAlterar')) {
+    const linha = e.target.closest('tr');
+    const EquipamentoId = linha.getAttribute('data-equipamento-id');
+    const AmbienteId = document.getElementById("idambienteAlterar").value;
+
+    console.log("ID do Ambiente:", AmbienteId);
+    console.log("ID do Equipamento:", EquipamentoId);
+
+    if (confirm("Tem certeza que deseja excluir este equipamento?")) {
+      fetch(`/ambiente/excluirEquipamento/${AmbienteId}/${EquipamentoId}`, { method: 'GET' })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(errorData => {
+              throw new Error('Erro ao excluir equipamento: ' + (errorData.mensagem || response.statusText));
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.sucesso) {
+            console.log("Equipamento excluído com sucesso!");
+            linha.remove();
+            alert("Equipamento excluído com sucesso!");
+          } else {
+            console.error("Não foi possível excluir o equipamento.");
+            alert("Erro ao excluir o equipamento: " + data.mensagem);
+          }
+        })
+        .catch(err => {
+          console.error("Erro: " + err);
+          alert("Houve um problema ao excluir o equipamento: " + err.message);
+        });
+    }
+  }
+});
+
+
+  </script>
+</div>

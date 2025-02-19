@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Reservas</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        #calendar {
+            max-width: 900px; /* Define uma largura máxima para o calendário */
+            margin: 0 auto; /* Centraliza o calendário */
+            border: 1px solid #ddd; /* Adiciona uma borda ao redor do calendário */
+            border-radius: 10px; /* Arredonda os cantos da borda */
+            background-color: #f9f9f9; /* Cor de fundo suave */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para destaque */
+            margin-top: 15px;
+        }
+ 
+        .fc {
+            font-family: 'Arial', sans-serif; /* Define a fonte do calendário */
+        }
+ 
+        .fc-daygrid-day {
+            background-color: #fff; /* Fundo branco para os dias */
+            transition: background-color 0.2s; /* Transição suave ao passar o mouse */
+        }
+ 
+        .fc-daygrid-day:hover {
+            background-color: #eaeaea; /* Cor de fundo ao passar o mouse */
+        }
+ 
+        .fc-toolbar {
+            background-color: #17a2b8; /* Cor de fundo da barra de ferramentas */
+            color: white; /* Cor do texto na barra de ferramentas */
+            border-radius: 10px; /* Arredonda os cantos da barra de ferramentas */
+            padding: 10px; /* Espaçamento interno da barra de ferramentas */
+        }
+ 
+        .fc-daygrid-event {
+            border-radius: 5px; /* Arredonda os cantos dos eventos */
+            padding: 5px; /* Espaçamento interno dos eventos */
+            color: black; /* Cor do texto dos eventos */
+            font-weight: bold; /* Aumenta o peso da fonte dos eventos */
+        }
+ 
+        .fc-daygrid-event[data-event-color='green'] {
+            background-color: #4CAF50; /* Verde para eventos com status positivo */
+        }
+ 
+        .fc-daygrid-event[data-event-color='red'] {
+            background-color: #F44336; /* Vermelho para eventos com status negativo */
+        }
+ 
+        h3 {
+            text-align: center; /* Centraliza o texto */
+            margin-bottom: 20px; /* Espaço abaixo do título */
+            margin-top: 20px;
+            color: black; /* Cor do texto */
+            font-family: Arial, sans-serif; /* Fonte */
+            font-size: 20px;
+        }
+ 
+        
+ 
+        /* Estilos do modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100; /* Garante que o modal fique acima do calendário */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+ 
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* Ajustado para melhor centralização */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            position: relative; /* Para o posicionamento do botão de fechar */
+        }
+ 
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+ 
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+ 
+<h3>Agenda de Reservas</h3>
+ 
+ 
+<!-- Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Selecione as datas</h3>
+        <label for="startDate">Data Início:</label>
+        <input type="date" id="startDate"><br>
+        <label for="endDate">Data Fim:</label>
+        <input type="date" id="endDate"><br><br>
+        <button id="generatePdf">Download</button>
+    </div>
+</div>
+ 
+<div id="calendar"></div>
+ 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'pt-br',
+            eventClick: function(info) {
+                // Mostra os detalhes do evento ao clicar
+                alert('Detalhes do evento:\n\n' +
+                      'Título: ' + info.event.title + '\n' +
+                      'Início: ' + info.event.start.toLocaleString() + '\n' +
+                      'Término: ' + (info.event.end ? info.event.end.toLocaleString() : 'Não definido'));
+            }
+        });
+        calendar.render();
+ 
+        fetch('/reservas')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(reservas => {
+                reservas.forEach(reserva => {
+                    if (reserva.status == "Aguardando")
+                        var cor = "orange";
+                    else if (reserva.status)
+                        var cor = 'green';
+                    else 
+                        var cor = 'red'; // Classe para definir a cor
+                    const event = {
+                        title: reserva.nome + ' (' + reserva.ambiente + ')',
+                        allDay: false,
+                        start: reserva.data + 'T' + reserva.horario_inicio,
+                        end: reserva.data + 'T' + reserva.horario_fim,
+                        color: cor
+                    };
+                    calendar.addEvent(event); // Adiciona evento ao calendário
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar reservas:', error);
+            });
+ 
+        // Modal
+        const modal = document.getElementById("myModal");
+        const span = document.getElementsByClassName("close")[0];
+ 
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+ 
+        document.getElementById('generateReportBtn').onclick = function() {
+            modal.style.display = "block";
+        }
+ 
+        document.getElementById('generatePdf').onclick = function() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+ 
+            if (!startDate || !endDate) {
+                alert('Por favor, selecione as datas de início e fim.');
+                return;
+            }
+ 
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            };
+ 
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+ 
+            pdf.text(`Relatório de Reservas`, 10, 10);
+            pdf.text(`Período: ${formatDate(startDate)} a ${formatDate(endDate)}`, 10, 20);
+ 
+            fetch('/reservas')
+                .then(response => response.json())
+                .then(reservas => {
+                    const filteredReservas = reservas.filter(reserva => {
+                        return reserva.data >= startDate && reserva.data <= endDate;
+                    });
+ 
+                    pdf.autoTable({
+                        head: [['Nome', 'Ambiente', 'Data', 'Horário Início', 'Horário Fim']],
+                        body: filteredReservas.map(reserva => [
+                            reserva.nome,
+                            reserva.ambiente,
+                            formatDate(reserva.data),
+                            reserva.horario_inicio,
+                            reserva.horario_fim
+                        ]),
+                        startY: 30,
+                        theme: 'grid',
+                    });
+ 
+                    pdf.save('relatorio_reservas.pdf');
+                    modal.style.display = "none";
+                });
+        }
+       
+        // Fecha o modal se clicar fora dele
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+ 
+</body>
+</html>
+ 

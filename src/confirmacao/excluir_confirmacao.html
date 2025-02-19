@@ -1,0 +1,27 @@
+<h3 class="text-center mb-4">Excluir Solicitação</h3>
+<div class="container">
+    <form action="/confirmacao/excluir" method="post" class="p-4 border rounded shadow">
+        <input type="hidden" class="form-control" id="id" name="id" placeholder="ID" value="{id}">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome do Solicitante</label>
+            <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do Administrador" value="{nome}" disabled>
+        </div>
+        <div class="mb-3">
+            <label for="ambiente" class="form-label">Ambiente</label>
+            <input type="text" class="form-control" id="ambiente" name="ambiente" placeholder="Ambiente" value="{ambiente}" disabled>
+        </div>
+        <div class="mb-3">
+            <label for="data" class="form-label">Data</label>
+            <input type="date" class="form-control" id="data" name="data" placeholder="Data" value="{data}" disabled>
+        </div>
+        <div class="mb-3">
+            <label for="horario_inicio" class="form-label">Horário Inicio</label>
+            <input type="time" class="form-control" id="horario_inicio" name="horario_inicio" placeholder="Horário inicio" value="{horario_inicio}">
+        </div>
+        <div class="mb-3">
+            <label for="horario_fim" class="form-label">Horário Fim</label>
+            <input type="time" class="form-control" id="horario_fim" name="horario_fim" placeholder="Horário fim" value="{horario_fim}">
+        </div>
+        <button type="submit" class="btn btn-danger w-100">Excluir</button>
+    </form>
+</div>

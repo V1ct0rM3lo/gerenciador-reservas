@@ -1,0 +1,150 @@
+<h3 class="text-center mb-4">Inserir Nova Solicitação</h3>
+<div class="container">
+    <form action="/confirmacao/novo-usuario" method="post" class="p-4 border rounded shadow">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome do Solicitante</label>
+            <input type="hidden" class="form-control" id="nome" name="nome" placeholder="Nome do Solicitante" value="{usuario}">
+            <input type="text" class="form-control" id="nome-nome" name="nome-nome" placeholder="Nome do Solicitante" value="{usuario}" disabled>
+        </div>
+        
+        <!-- Exibição do nome do ambiente selecionado -->
+        <div class="mb-3">
+            <label for="ambiente-selecionado" class="form-label">Ambiente Selecionado</label>
+            <input type="text" class="form-control" id="ambiente-selecionado" value="" disabled>
+        </div>
+
+        <!-- Botão que abre a modal com as opções de ambientes -->
+        <div class="mb-3">
+            <button type="button" class="btn btn-secondary w-100" id="select-ambiente" data-bs-toggle="modal" data-bs-target="#modalAmbientes">
+                Selecionar Ambiente
+            </button>
+            <input type="hidden" class="form-control" id="ambiente" name="ambiente">
+        </div>
+        
+        <div class="mb-3">
+            <label for="data" class="form-label">Data</label>
+            <input type="date" class="form-control" id="data" name="data" placeholder="Data">
+        </div>
+        <div class="mb-3">
+            <label for="horario_inicio" class="form-label">Horário Inicio</label>
+            <input type="time" class="form-control" id="horario_inicio" name="horario_inicio" placeholder="Horário inicio">
+        </div>
+        <div class="mb-3">
+            <label for="horario_fim" class="form-label">Horário Fim</label>
+            <input type="time" class="form-control" id="horario_fim" name="horario_fim" placeholder="Horário fim">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Inserir</button>
+    </form>
+</div>
+
+<!-- Modal de seleção de ambiente -->
+<div class="modal fade" id="modalAmbientes" tabindex="-1" aria-labelledby="modalAmbientesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAmbientesLabel">Selecionar Ambiente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Opções de ambientes com radio buttons -->
+        <div id="ambientes-radio">
+            <!-- As opções de ambiente serão preenchidas dinamicamente via JavaScript -->
+        </div>
+        
+        <!-- Exibição da tabela de equipamentos (inicialmente oculta) -->
+        <div id="tabela-equipamentos" style="display: none;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Equipamentos disponíveis no ambiente selecionado</th>
+                    </tr>
+                </thead>
+                <tbody id="equipamentos-lista">
+                    <!-- Lista de equipamentos será preenchida dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const ambientes = JSON.parse('{ambientes_json}');
+    // Preencher os radio buttons com os ambientes
+    const ambientesContainer = document.getElementById('ambientes-radio');
+    ambientes.forEach((ambiente) => {
+        const radioHTML = `
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="ambiente" id="ambiente${ambiente.id}" value="${ambiente.id}" data-nome="${ambiente.nome}" data-equipamentos='${JSON.stringify(ambiente.equipamentos)}'>
+                <label class="form-check-label" for="ambiente${ambiente.id}">
+                    ${ambiente.nome}
+                </label>
+            </div>
+        `;
+        ambientesContainer.innerHTML += radioHTML;
+    });
+
+    // Ao selecionar um radio button, exibe o nome do ambiente e preenche o input hidden com o ID
+    document.querySelectorAll('input[name="ambiente"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const ambienteSelecionado = e.target;
+            const nomeAmbiente = ambienteSelecionado.getAttribute('data-nome');
+            const ambienteId = ambienteSelecionado.value;
+            const equipamentos = JSON.parse(ambienteSelecionado.getAttribute('data-equipamentos'));
+
+            // Atualiza o campo 'Ambiente Selecionado' com o nome do ambiente
+            document.getElementById('ambiente-selecionado').value = nomeAmbiente;
+
+            // Atualiza o input hidden com o ID do ambiente
+            document.getElementById('ambiente').value = nomeAmbiente;
+
+            // Preenche a tabela de equipamentos com os itens do ambiente selecionado
+            const equipamentosLista = document.getElementById('equipamentos-lista');
+            equipamentosLista.innerHTML = '';  // Limpa a lista antes de preencher
+            if (equipamentos && Object.keys(equipamentos).length > 0) {
+                Object.values(equipamentos).forEach((equipamento) => {
+                    const row = `
+                        <tr>
+                            <td>${equipamento.descricao}</td>
+                        </tr>
+                    `;
+                    equipamentosLista.innerHTML += row;
+                });
+            } else {
+                // Caso não haja equipamentos, exibe uma mensagem
+                const row = `
+                    <tr>
+                        <td>Nenhum equipamento disponível</td>
+                    </tr>
+                `;
+                equipamentosLista.innerHTML += row;
+            }
+
+            // Exibe a tabela de equipamentos
+            document.getElementById('tabela-equipamentos').style.display = 'block';
+        });
+    });
+
+    // Ao clicar em "Confirmar Seleção", a modal é fechada
+    document.getElementById('select-ambiente').addEventListener('click', () => {
+        const selectedRadio = document.querySelector('input[name="ambiente"]:checked');
+        if (selectedRadio) {
+            const nomeAmbiente = selectedRadio.getAttribute('data-nome');
+            const ambienteId = selectedRadio.value;
+
+            // Preenche o campo 'Ambiente' do formulário com o nome do ambiente
+            document.getElementById('ambiente-selecionado').value = nomeAmbiente;
+
+            // Atualiza o campo hidden com o ID do ambiente selecionado
+            document.getElementById('ambiente').value = ambienteId;
+
+            // Fecha a modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalAmbientes'));
+            modal.hide();
+        }
+    });
+</script>
